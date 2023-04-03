@@ -33,20 +33,32 @@ window.addEventListener("load", function() {
       orderForm.elements.orderDate.value = new Date().toDateString();
       orderForm.elements.model.focus();
 
+ //Calculate the cost of the order
+calcOrder();
 
+//Event handlers for the web form
+orderForm.elements.model.onchange = calcOrder;
+orderForm.elements.qty.onchange = calcOrder;
 
+var planOptions = document.querySelectorAll('input[name="protection"]');
+for (var i = 0; i < planOptions.length; i++) {
+   planOptions[i].onclick = calcOrder;
+}
+});
 
+function calcOrder(){
+   var orderForm = document.forms.orderForm;
+   var mIndex = orderForm.elements.model.selectedIndex;
+   var mCost = orderForm.elements.model.options[mIndex].value;
+   var qIndex = orderForm.elements.qty.selectedIndex;
+   var quantity = orderForm.elements.qty[qIndex].value;
 
-   }
-);
-
-
-//Initial cost = model cost x quantity
+   //Initial cost = model cost x quantity
 var initialCost = mCost*quantity;
-orderForm.elements.initialCost.value = formatUSACurrency(initialCost);
+orderForm.elements.initialCost.value = formatUSCurrency(initialCost);
 
 //Retrieve the cost of user's protection plan
-var pCost = document.querySelector('input[name="protection"]: checked').value*quantity;
+var pCost = document.querySelector('input[name="protection"]:checked').value*quantity;
 orderForm.elements.protectionCost.value = formatNumber(pCost, 2);
 
 //Calculate the order subtotal
@@ -58,33 +70,32 @@ orderForm.elements.salesTax.value = formatNumber(salesTax, 2);
 
 //Calculate the total cost of the order
 var totalCost = initialCost + pCost + salesTax;
-orderForm.elements.totalCost.value = formatUSNumber(totalCost);
+orderForm.elements.totalCost.value = formatUSCurrency(totalCost);
 
 //Store the order details
 orderForm.elements.modelName.value = 
 orderForm.elements.model.options[mIndex].text;
-orderForm.elements.protectName.value = 
-document.querySelector('input[name="protection"]:checked').nextSibling.nodeValue;
+orderForm.elements.protectionName.value = document.querySelector('input[name="protection"]:checked')
+.nextSibling.nodeValue;
+
+}
+
+
 
 function formatNumber(val, decimals) {
    return val.toLocaleString(undefined,
-      {minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals});
+      {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
 }
 
-function formatUSACurrency(val) {
+function formatUSCurrency(val) {
    return val.toLocaleString('en-US',
       {style: "currency", currency: "USD"});
 }
 
-//Calculate the cost of the order
-calcOrder();
 
-//Event handlers for the web form
-orderForm.elements.model.onchange = calcOrder;
-orderForm.elements.qty.onchange = calcOrder;
 
-var planOptions = document.querySelectorAll('input[name="protection"]');
-for (var i = 0; i < planOptions.length; i++) {
-   planOptions[i].onclick = calcOrder;
-}
+
+
